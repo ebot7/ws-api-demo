@@ -3,8 +3,8 @@ import './App.css';
 import axios from 'axios';
 import io from 'socket.io-client';
 
-const BOT_ID = '5b754876c70ca90157c053d2';
-const API_KEY = 'visitor'
+const BOT_ID = 'YOUR BOTID HERE';
+const API_KEY = 'YOUR APIKEY HERE'
 
 let convId = null;
 
