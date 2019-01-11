@@ -5,22 +5,19 @@ import io from 'socket.io-client';
 
 const BOT_ID = '5b754876c70ca90157c053d2';
 const API_KEY = 'visitor'
-const API_SECRET = 'visitor'
 
 let convId = null;
 
-const socket = io('https://dev.e-bot7.io/', {
-  path: '/engine/socket.io',
-  transports: ['websocket']
-});
+const socket = io('https://api.dev.e-bot7.io/', {
+  path: '/v0/socket.io'
+})
 
 const auth = async addMessageHandler => {
   const { data: { accessToken } } = await axios.post(
     'https://api.dev.e-bot7.io/authentication',
     {
-      strategy: 'local-api',
+      strategy: 'visitor-api',
       apiKey: API_KEY,
-      apiSecret: API_SECRET
     },
     {
       headers: { 'content-type': 'application/vnd.api+json' }
@@ -34,24 +31,17 @@ const auth = async addMessageHandler => {
       accessToken
     },
     function(message, data) {
-      socket.on('ws-api created', function(data) {
-        const { type, id } = data
-        switch (type) {
-          case 'convs': {
-            convId = id
-            addMessageHandler({ from: 'system', text: `conv ${convId} created!` })
-            break
-          }
-          case 'messages': {
-            const { body: text, source: from } = data.attributes
-            addMessageHandler({ from, text })
-            break
-          }
-          default:
-        }
-      });
+      socket.on('convs created', function(data) {
+        convId = data.id
+        addMessageHandler({ from: 'system', text: `conv ${convId} created!` })
+      })
 
-      socket.emit('create', 'ws-api', {
+      socket.on('messages created', function(data) {
+        const { body: text, source: from } = data.attributes
+        addMessageHandler({ from, text })
+      })
+
+      socket.emit('create', 'convs', {
         data: {
           type: 'convs',
           attributes: {
@@ -89,7 +79,7 @@ class App extends Component {
   };
 
   sendMessage = () => {
-    socket.emit('create', 'ws-api', {
+    socket.emit('create', 'messages', {
       data: {
         type: 'messages',
         attributes: {
