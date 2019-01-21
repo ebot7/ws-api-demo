@@ -3,18 +3,30 @@ import './App.css';
 import axios from 'axios';
 import io from 'socket.io-client';
 
-const BOT_ID = 'YOUR BOTID HERE';
+// use 'https://main-api.e-bot7.io' for production
+// and 'https://api.stable.e-bot7.de' for development
+const API_SERVER = 'API ENDPOINT HERE'
+const BOT_ID = 'YOUR BOTID HERE'
 const API_KEY = 'YOUR APIKEY HERE'
 
 let convId = null;
 
-const socket = io('https://api.dev.e-bot7.io/', {
-  path: '/v0/socket.io'
+const socket = io(API_SERVER, {
+  path: '/v0/socket.io',
+  transports: ['websocket'],
+})
+
+// by default, use the WS protocol
+// or fall back to long polling, if needed
+socket.on('reconnect_attempt', () => {
+  socket.io.opts.transports = ['polling', 'websocket']
 })
 
 const auth = async addMessageHandler => {
+  // you can skip this step and authenticate directly
+  // in the 'authenticate' event below using the same options object
   const { data: { accessToken } } = await axios.post(
-    'https://api.dev.e-bot7.io/authentication',
+    `${API_SERVER}/authentication`,
     {
       strategy: 'visitor-api',
       apiKey: API_KEY,
