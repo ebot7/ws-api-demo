@@ -23,8 +23,6 @@ socket.on('reconnect_attempt', () => {
 })
 
 const auth = async addMessageHandler => {
-  // you can skip this step and authenticate directly
-  // in the 'authenticate' event below using the same options object
   const { data: { accessToken } } = await axios.post(
     `${API_SERVER}/authentication`,
     {
